@@ -26,15 +26,17 @@ jobs:
     - name: Create BOM
       run: |
         npm install -g @cyclonedx/cyclonedx-npm@latest
+        cyclonedx-npm --output-format xml --output-file bom.xml
         npm run sbom
       shell: bash
     - name: Upload BOM to Dependency-Track
       run: |
         curl -v -X "POST" "https://dependency-track-devsecops-${{ secrets.LABINSTANCEID }}.azurewebsites.net/api/v1/bom" \
+             -H 'Content-Type: multipart/form-data' \
              -H 'X-API-Key: ${{ secrets.DTRACKAPIKEY }}' \
              -F 'project=${{ secrets.DTRACKPROJID }}' \
-             -F 'projectName=DevSecOps' \
-             -F 'bom=@${{ github.workspace }}/bom.json'
+             -F 'projectname=DevSecOps' \
+             -F 'bom=@${{ github.workspace }}/bom.xml'
       continue-on-error: true
 
                     
